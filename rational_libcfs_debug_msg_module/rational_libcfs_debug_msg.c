@@ -23,7 +23,7 @@ static struct jprobe my_jprobe = {
 	.entry = (kprobe_opcode_t *) ins_libcfs_debug_msg
 };
 
-int init_module(void)
+static int __init init_libcfs_rpk(void)
 {
 	register_jprobe(&my_jprobe);
 	printk("plant libcfs_debug_msg jprobe at %p, handler addr %p\n",
@@ -31,11 +31,14 @@ int init_module(void)
 	return 0;
 }
 
-void cleanup_module(void)
+static void __exit exit_libcfs_rpk(void)
 {
   unregister_jprobe(&my_jprobe);
   printk("printk jprobe unregistered\n");
-
 }
+
+module_init(init_libcfs_rpk);
+module_exit(exit_libcfs_rpk);
+
 
 MODULE_LICENSE("GPL");

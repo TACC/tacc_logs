@@ -273,7 +273,7 @@ static inline int rpk_get_level(const char *buffer)
 	  switch(buffer[1]) {
 	  case '0' ... '7':
 	  case 'd':
-	    return buffer[1]
+	    return buffer[1];
 	      }
 	}
 #endif
