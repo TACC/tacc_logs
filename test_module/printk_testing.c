@@ -25,7 +25,7 @@ int hello_init(void) {
 
 void hello_exit(void) {
 
-  printk("awesome finalization");
+  printk("%s awesome finalization",KERN_INFO);
 
 }
 

@@ -1,7 +1,12 @@
 #include <linux/module.h>
+#include <linux/moduleparam.h>
 #include <linux/kprobes.h>
 #include <linux/ctype.h>
 #define LOG_LINE_MAX     1024
+
+static int JOBID = 0;
+module_param(JOBID, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+MODULE_PARM_DESC(JOBID, "The current jobid");
 
 static int rpk_encode2(char *buf, size_t size, 
 		       const char *fmt, va_list args);
@@ -18,7 +23,7 @@ static asmlinkage int ins_printk(const char *fmt, ...)
 
   va_start(args,fmt);
   r =  rpk_encode2(msg, sizeof(msg), fmt, args);
-  printk(KERN_INFO "%s",msg);
+  printk(KERN_INFO "JobID %d %s",JOBID,msg);
   va_end(args);
 
   jprobe_return();
@@ -101,8 +106,8 @@ static char *rpk_encode_num(char *pos, char *end, int *key,
   rpk_put(pos, end, ':');
   rpk_put(pos, end, ' ');
   pos = rpk_num(pos, end, num, sign);
-  rpk_put(pos, end, '\n');
-
+  rpk_put(pos, end, ' ');
+  //rpk_put(pos, end, '\n');
   return pos;
 }
 
@@ -114,8 +119,8 @@ static char *rpk_encode_str(char *pos, char *end, int *key, const char *str,
   rpk_put(pos, end, ':');
   rpk_put(pos, end, ' ');
   pos = rpk_str(pos, end, str, prec);
-  rpk_put(pos, end, '\n');
-
+  //rpk_put(pos, end, '\n');
+  rpk_put(pos, end, ' ');
   return pos;
 }
 
