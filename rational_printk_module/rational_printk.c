@@ -14,7 +14,7 @@ static int rpk_encode2(char *buf, size_t size,
 static char *rpk_encode_args(char *pos, char *end, int *key, const char *fmt,
 			     va_list args);
 
-static asmlinkage int ins_printk(const char *fmt, ...) 
+static asmlinkage int rprintk(const char *fmt, ...) 
 {
   
   static char msg[LOG_LINE_MAX];
@@ -23,11 +23,11 @@ static asmlinkage int ins_printk(const char *fmt, ...)
 
   va_start(args,fmt);
   r =  rpk_encode2(msg, sizeof(msg), fmt, args);
-  printk(KERN_INFO "JobID %d %s",JOBID,msg);
+  printk(KERN_INFO "JobID %d %s\n",JOBID,msg);
   va_end(args);
 
   jprobe_return();
-  return r;
+  return 0;
 }
 
 static int rpk_skip_atoi(const char **s)
@@ -345,25 +345,34 @@ static int rpk_encode2(char *buf, size_t size,
 }
 
 
-static struct jprobe my_jprobe = {
-  .kp.addr = (kprobe_opcode_t *) printk,
-  .entry = (kprobe_opcode_t *) ins_printk
+static struct jprobe rpk_jprobe = {
+  .entry = rprintk,
+  .kp = {
+    .symbol_name = "printk",
+  },
 };
 
-int init_module(void)
+static int __init rpk_init(void)
 {
-  register_jprobe(&my_jprobe);
-  printk(KERN_INFO "plant printk jprobe at %p, handler addr %p",
-	 my_jprobe.kp.addr, my_jprobe.entry);
+  int ret;
+
+  ret = register_jprobe(&rpk_jprobe);
+  if (ret < 0) { 
+    printk(KERN_INFO "rational_printk module failed, returned %d\n", ret);
+    return -1;
+  }
+  printk(KERN_INFO "plant rational_printk jprobe at %p, handler addr %p\n",
+	 rpk_jprobe.kp.addr, rpk_jprobe.entry);
+
   return 0;
 }
 
-void cleanup_module(void)
+static void __exit rpk_exit(void)
 {
-
-  unregister_jprobe(&my_jprobe);
-  printk("printk jprobe unregistered");
-
+  unregister_jprobe(&rpk_jprobe);
+  printk(KERN_INFO "rational_printk jprobe at %p unregistered\n", rpk_jprobe.entry);
 }
 
+module_init(rpk_init);
+module_exit(rpk_exit);
 MODULE_LICENSE("GPL");
