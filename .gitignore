@@ -5,3 +5,5 @@
 *.order
 *~
 *rpm
+*cmd
+*mod
