@@ -9,8 +9,6 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %define debug_package %{nil}
-%include rpm-dir.inc
-#%define kernel 2.6.32-431.17.1.el6.x86_64 
 %define kernel %(uname -r)
 %define destdir /lib/modules/%{kernel}/extra
 
@@ -39,7 +37,7 @@ mkdir -p %{buildroot}/%{destdir}
 install -m 0755 %{name}.ko %{buildroot}/%{destdir}
 
 %post
-/sbin/depmod -ae %{kernel}
+/sbin/depmod
 /sbin/modprobe rational_printk
 
 %clean
@@ -50,7 +48,9 @@ rm -rf %{buildroot}
 %{destdir}/%{name}.ko
 
 %preun
-/sbin/modprobe -r rational_printk
+if [ $1 == 0 ]; then
+/sbin/modprobe -r rational_printk || :
+fi
 
 %changelog
 * Mon Mar  2 2015  <build@build.stampede.tacc.utexas.edu> - 

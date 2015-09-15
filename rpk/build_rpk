@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eu
+
+version=1.0.0
+tmp=$(mktemp -d $PWD/rpmbuild.XXX)
+topdir=$tmp
+
+mkdir -p $topdir/{BUILD,RPMS/{noarch,x86_64},SRPMS,SOURCES,SPECS}
+cp $PWD/rational_printk.spec $topdir/SPECS/
+
+ln -s $PWD/rational_printk $tmp/rational_printk-$version
+
+tar -czf $topdir/SOURCES/rational_printk-$version.tar.gz -C $tmp rational_printk-$version/.
+
+rpmbuild -bb \
+    --define "_tmppath $tmp" \
+    --define "_topdir $topdir" \
+    $topdir/SPECS/rational_printk.spec
+cp $topdir/RPMS/x86_64/*rpm $PWD
+rm -rf $topdir
