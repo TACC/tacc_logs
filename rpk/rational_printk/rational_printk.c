@@ -1,3 +1,6 @@
+/* rational_printk.c
+*  Author: Richard Todd Evans <rtevans@tacc.utexas.edu>
+*/
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/kprobes.h>
