@@ -33,7 +33,7 @@ $IncludeConfig /etc/rsyslog.d/*.conf
 ```
 and a conf file in `/etc/rsyslog.d/` with the content (for example)
 ```
-if $msg contains 'RPKJOBID' then @tacc-stats.tacc.utexas.edu
+if $msg contains 'RPKJOBID' then @serverdomainname
 &~
 ```
 On the **server** where the logs will be hosted add the following lines to  `/etc/rsyslog.conf`
